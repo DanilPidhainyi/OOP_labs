@@ -24,7 +24,14 @@ public class MySet implements Set<FromSocket> {
         addAll(collection);
     }
 
-
+    public void show() {
+        MyIterator iter = new MyIterator();
+        FromSocket item = iter.next();
+        while (item != null) {
+            System.out.println(item.name);
+            item = iter.next();
+        }
+    }
     @Override
     public int size() {
         return this.size;
@@ -35,19 +42,16 @@ public class MySet implements Set<FromSocket> {
         return this.size == 0;
     }
 
-    private boolean findItem(Node checkItem, Object obj) {
-        if (checkItem.getFromSocket() == obj) {
-            return true;
-        }
-        if (checkItem.getNext() != null) {
-            return findItem(checkItem.getNext(), obj);
-        }
-        return false;
-    }
-
     @Override
     public boolean contains(Object obj) {
-        return findItem(first, obj);
+        Node checkItem = first;
+        while (checkItem != null) {
+            if (checkItem.getFromSocket() == obj) {
+                return true;
+            }
+            checkItem = checkItem.getNext();
+        }
+        return false;
     }
 
     @Override
@@ -105,13 +109,25 @@ public class MySet implements Set<FromSocket> {
         return true;
     }
 
+    private void removeNode(Node node) {
+        if (size == 1) {
+            first = null;
+        }
+        if (node.getPrevious() != null) {
+            node.getPrevious().setNext(node.getNext());
+        }
+        if (node.getNext() != null) {
+            node.getNext().setPrevious(node.getPrevious());
+        }
+        size--;
+    }
+
     @Override
     public boolean remove(Object obj) {
         Node checkItem = first;
         while (checkItem != null) {
             if (checkItem.getFromSocket() == obj) {
-                checkItem.getPrevious().setNext(checkItem.getNext());
-                size--;
+                removeNode(checkItem);
                 return true;
             }
             checkItem = checkItem.getNext();
@@ -130,7 +146,7 @@ public class MySet implements Set<FromSocket> {
 
     @Override
     public boolean addAll(Collection<? extends FromSocket> collection) {
-       boolean checkAdd = false;
+        boolean checkAdd = false;
         for (FromSocket item : collection) {
             checkAdd |= add(item);
         }
@@ -140,14 +156,13 @@ public class MySet implements Set<FromSocket> {
     @Override
     public boolean retainAll(Collection<?> collection) {
         boolean checkRetain = false;
-        Node checkItem = first;
-        while (checkItem != null) {
-            if (collection.contains(checkItem.getFromSocket())) {
-                checkItem.getPrevious().setNext(checkItem.getNext());
-                size--;
+        Node verifiableItem = first;
+        while (verifiableItem != null) {
+            if (collection.contains(verifiableItem.getFromSocket())) {
+                removeNode(verifiableItem);
                 checkRetain = true;
             }
-            checkItem = checkItem.getNext();
+            verifiableItem = verifiableItem.getNext();
         }
         return checkRetain;
     }
@@ -155,7 +170,7 @@ public class MySet implements Set<FromSocket> {
     @Override
     public boolean removeAll(Collection<?> collection) {
         boolean checkRemove = false;
-        for (Object item: collection) {
+        for (Object item : collection) {
             checkRemove |= remove(item);
         }
         return checkRemove;
