@@ -91,6 +91,9 @@ public class MySet implements Set<FromSocket> {
 
     @Override
     public boolean add(FromSocket fromSocket) {
+        if (contains(fromSocket)) {
+            return false;
+        }
         Node node = new Node(fromSocket, null, last);
         if (first == null) {
             first = node;
@@ -127,9 +130,11 @@ public class MySet implements Set<FromSocket> {
 
     @Override
     public boolean addAll(Collection<? extends FromSocket> collection) {
-        collection.forEach(this::add);
-        // повертає тру якщо колекція не пуста
-        return !collection.isEmpty();
+       boolean checkAdd = false;
+        for (FromSocket item : collection) {
+            checkAdd |= add(item);
+        }
+        return checkAdd;
     }
 
     @Override
